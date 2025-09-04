@@ -1,4 +1,5 @@
 # Corso-R-base-per-Mediolanum (settembre 2025)
+Programma delle giornate
 
 Giornata 1 (3.9.2025) - lista degli argomenti trattati
 

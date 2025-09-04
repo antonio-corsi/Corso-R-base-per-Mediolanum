@@ -1,6 +1,7 @@
 
 #  COPYRIGHT 2025 Antonio Michele Piemontese
 
+
 # le directory base -------------------------------------------------------
 
 # la directory corrente:

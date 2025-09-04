@@ -1,3 +1,5 @@
+# primo script R di prova
+
 a = 1                        # assegnazione
 class(a)                     # la classe dell'oggetto
 # a = 'pippo'                # riassegnazione

@@ -1,3 +1,4 @@
+# Copyright Antonio Piemontese 2025
 
 # gli ambienti  ------------------------------------------------------------
 

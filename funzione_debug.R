@@ -1,3 +1,5 @@
+#  COPYRIGHT 2025 Antonio Michele Piemontese
+
 f <- function (x,y,z=1){
   result <- x + (2*y) + (3*z)
   return(result)               # il valore della funzione.

@@ -1,15 +1,10 @@
+#  COPYRIGHT 2025 Antonio Michele Piemontese
+
 # Introduzione ad R - parte I
 
 # Copyright 2021 Antonio Michele Piemontese
 
 ###########################################
-
-# Introduzione corso ------------------------------------------------------------
-
-# - quick bio mia;
-# - presentazione partecipanti (attività, aspettative)
-# - orario: 9.00-11.00; 11.15-13.30
-# - poll 
 
 # Mini intro ad R ---------------------------------------------------------
 
