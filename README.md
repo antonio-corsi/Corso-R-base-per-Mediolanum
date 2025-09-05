@@ -48,12 +48,17 @@ Note
 - Sezione "Package" (in particolare .libPaths())
 
 
-Giornata 2 (5.9.2025) - lista degli argomenti da trattare
+Giornata 2 (5.9.2025) - lista degli argomenti trattati
 
 1.Recap
 
 2. Dallo script R "Corso R base - Abis) Altro su RStudio" le seguenti sezioni:
 - sezione "Dataset per partire"
+- sezione "Analisi Dati Esplorativa (EDA) - Aspetti principali" (sino alla fine, incluso esempio X11)
+
+Giornata 3 (10.9.2025) - lista degli da trattare 
+- esempio regressione balance su income, con nuovo dataset di 1000 clienti come i 400 di Credit, e con Income con stessa media e varianza 2/ volte maggiore
+
 - sezione "Data type (formati colonne)"
 - sezione "I dataframe"
 - sezione "Cicli ed If"
