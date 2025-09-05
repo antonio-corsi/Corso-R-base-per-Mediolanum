@@ -179,55 +179,89 @@ class(Credit)  # tipo di dati LOGICO --> il data.frame è l'oggetto R più frequ
                #                         ETEROGENEE come tipo fisico di dato.
 
 mode(Credit)   # tipo di dati FISICO (com'è memorizzato internamente l'intero df).
+
 typeof(Credit) # la versione aggiornata di 'mode' (per consistenza con altri linguaggi OO).
+
+
 
 #########################################################################################
 # il tipo di dati "logico" è una vista superiore dell'oggetto (vista utente); il tipo   #
 # di dati "fisico" descrive la memorizzazione interna ad R dell'oggetto.                #
 #########################################################################################
 
+Credit        # tutto il dataframe
+head(Credit)  # solo le prime 6 righe
+tail(Credit)  # solo le ultime 6 righe
 str(Credit)   # 'str' abbreviativo di 'structure'
+
 
 # - Auto: "Gas mileage, horsepower, and other information for 392 vehicles" (R help)
 str(Auto)
+head(Auto)
 
 # - Carseats: "A simulated data set containing sales of child car seats at 400 different stores." (R help)
+head(Carseats)
 str(Carseats)
 
 # questi 3 dataset (Credit, Auto, Carseats) fanno parte del package 'ISLR'.
 
+# normalmente in R - ed in generale nella Data Science e nel Machine Learning - si lavora con un singolo file per volta,
+# cioè NON si lavora su un database, composto di molte tabelle.
+# R può accedere a qualsiasi tipo di file (txt, xlsx, csv, json, parquet, SQL table, ecc), normalmente si lavora con file CSV
+# perchè sono i più agevoli da trattare in R. Tutti i database hanno la funzione di 'export table to csv'.
+
 # un quarto file, preso dal SITO del libro ISLR:
-# - Advertising (scaricarlo dal sito ISLR): "Sales of tha product in 200 different markets, along with advertising budgets
+# - Advertising (scaricarlo dal sito ISLR): "Sales of one product in 200 different markets, along with advertising budgets
 #   for the product in each of those markets for three different media: TV, radio, and newpaper". (ISLR, p. 15)
+
+# in che directory siamo in questo momento?
+getwd()   # get working directory (per default iniziale è la directory alla quale lo script R appartiene)
+# come si modifica la directory corrente? in due modi
+setwd("C:/")
+# il secondo modo: dal menù Session --> Set Working Directory --> To Source File Location (oppure Choose Directory)
+setwd("C:/Users/Admin/Desktop/corso R base")
+
 path.name <- "Advertising.csv" # desktop
 # path.name <- "C:/Users/W 10 Pro/Desktop/Salvataggio Dati/Documents/Seminari/Data Science (corsi)/Corso R base/Advertising.csv" # desktop
 # path.name <- "D:Advertising.csv" # laptop
-Adv <- read.csv(path.name)
+read.csv("Advertising.csv")
+Adv <- read.csv("Advertising.csv")
 class(Adv)
 head(Adv,10)
 tail(Adv)
 dim(Adv)
-str(Adv)
+str(Adv)   
+
+# str fornisce anch'essa il numero righe (obs.) e colonne (variables) nella prima riga del suo output.
+# tuttavia, il comando 'dim' è molto comodo da usare nel codice; supponiamo di aver bisogno di una variabile numero colonne 
+# del dataframe da usare in un loop:
+n = dim(Adv)[1]
+p = dim(Adv)[2]
+n
+p
 
 # dal package 'MASS':
 # - Boston: "Housing values and other information about Boston suburbs (ISLR, p. 14), based on a 1970 census on 506 districts"
 library(MASS)
 str(Boston)
 
-# caricamento da file ASCII:
+# caricamento da file txt:
 data<-read.table("edge_file_facebook_matlab v2.txt",header=FALSE)
 head(data)
 
-# caricamento file csv:
-findata<-read.csv("FinancialIndicators.csv",header=TRUE) # il modo migliore
+# caricamento file csv grande, con tre importanti argomenti valorizzati:
+findata <- read.csv("FinancialIndicators.csv",header=TRUE, sep = ",",nrows=100) # il modo migliore
 head(findata)
+View(findata)
 str(findata)
-class(findata)
+class(findata)      # data type logico (utente)
+typeof(findata)     # data type ficiso (interno R)
 
 # caricamento file su internet
-library(readr)
-df2 <- read_csv("https://people.sc.fsu.edu/~jburkardt/data/csv/airtravel.csv")
-head(df2)
+library(readr)      # questo package fornisce la funzione "read_csv"
+AirTravel <- read_csv("https://people.sc.fsu.edu/~jburkardt/data/csv/airtravel.csv")
+AirTravel
+
 # it’s a small airline passenger dataset, useful for learning about time series and data import in R.
 # it’s a classic toy dataset often used in examples.
 # Source: Florida State University’s dataset archive.
@@ -235,6 +269,74 @@ head(df2)
 # Time period: 1958, 1959, 1960.
 # Format: rows = months, columns = years.
 
+
+# Analisi Dati Esplorativa (EDA) - Aspetti principali ------------------------------------------
+
+# Nella Data Science / Machine Learning i due task principali sono:
+# - analisi dati esplorativa del file --> vedi png
+# - costruzione di modelli predittivi (sui dati del file)
+
+# Lo script "Corso R base - B) Statistica descrittiva.R" contiene una EDA piùcompleta.
+
+Credit
+dim(Credit)
+str(Credit)
+head(Credit)
+
+# subsetting di riga e di colonna (cioè "estrarre" un sottoinsieme di righe e/o di colonne)
+# uno dei vantaggi di R (rispetto a Python) è la semplicità del subsetting --> c'è un unico modo standard: [riga,colonna]
+Credit[1:10,]          # subsetting di riga (qui le prime 10)
+Credit[,1:3]           # subsetting di colonna (qui le prime 3)
+Credit[1:10,1:3]       # subsetting sia di riga che di colonna
+Credit[1:10,c(1,2,3)]  # equivalente più flessibile
+Credit[1:10,c(3,7,9)]  # equivalente più flessibile
+
+
+# si può fare subsetting anche con i nomi colonna o riga 
+Credit[1:10,"Income"]             # l'income dei primi 10 clienti
+Credit[1:10,c("Income","Limit")]  # l'income e il limite dei primi 10 clienti
+
+# a differenza di Python, nel subsetting di R se nella parenetsi quadre si specifica solo una dimensione, 
+# R intende che sia la colonna (Python intende che sia la riga)
+Credit[c("Income","Limit")]
+
+# EDA
+
+# nella EDA con R è importante la mediana
+vettore.prova <- c(10,20,30,40,50)
+vettore.prova
+mean(vettore.prova);median(vettore.prova)   # --> caso fortunato nel quale media e mediana coincidono
+vettore.prova <- c(10,20,30,40,500)
+mean(vettore.prova);median(vettore.prova)   #  --> la mediana "è robusta rispetto agli outlier, non ne è influenzata"
+
+# vediamo media e mediana sul dataset Credit, colonna Income
+mean(Credit$Income)  
+mean(Credit[,"Income"])   # equivalente
+median(Credit$Income)
+
+# la vista di insieme su tutte le colonne ("str" e "summary" corrispondono alla "describe" in Python)
+summary(Credit)
+
+# minimo e massimo
+range(Credit$Income)
+
+# vediamo ora un pò di PLOT
+plot(Credit$Income,Credit$Balance)   # c'è una leggera correlazione?
+cor(Credit$Income,Credit$Balance)    # no
+
+plot(Credit$Income,Credit$Limit)
+
+# dove è visualizzato il plot? nel tab "Plots" a destra
+bmp("file_bmp")
+plot(Credit$Income,Credit$Limit)
+dev.off()
+
+x11()      # apre il sistema di rendering grafico "X Windows" (abbreviato x11), che fornisce delle funzionalità
+           # grafiche ulteriori rispetto al tab "Plots"
+plot(Credit$Income,Credit$Limit)
+x11()
+plot(Credit$Income,Credit$Balance)
+dev.off()  # chiude X11
 
 # Data type (formati colonne) ---------------------------------------------------------------
 
@@ -917,4 +1019,4 @@ url <- "https://stackoverflow.com/questions/7027288/error-could-not-find-functio
 # browseURL(url, browser = getOption("browser"))
 
 
-
+antonio = 1
