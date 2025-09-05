@@ -11,7 +11,7 @@ Giornata 1 (3.9.2025) - lista degli argomenti trattati
 
 - La VM è una pila hardware / software con 12 GB RAM ed una CPU di 2.5 GHz, Windows 10, con le seguenti app già installate: Chrome e Edge, Copilot, R 4.5.1 e RStudio, Adobe Acrobat Reader, WinRAR.
 
-- Nella finestra di configurazione a sinistra: attivare l'enhanced mode, scegliere il tipo di tastiera e premere il tasto di inserimento della password
+- Nella finestra di configurazione a sinistra: attivare l'enhanced mode, scegliere il tipo di tastiera e premere il tasto di inserimento della password. Si usa l'utente 'admin', non 'student'.
 
 - Una volta entrati nella VM, tramite l'àncora (resize handle) ridurre la dimensione della finestra di configurazione fino a farla sparire (l'àncora rimane comunque sempre visibile alla estrema sinistra dello schermo), in modo da riservare tutto lo spazio video alla VM.
 
