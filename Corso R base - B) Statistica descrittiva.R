@@ -1,89 +1,10 @@
 
-# Missing Values (MV) management --------------------------------------------------
-
-# --> in R chiamati NA (Not Available)
-
-data(sleep,package="VIM") # VIM è un package per la gestione dei MV
-data(package="VIM")       # la lista dei dataset SOLO del package indicato (VIM)
-# carica in memoria uno specifico dataset
-# <Promise object> ? (vedi pane Environment): click sopra.
-dim(sleep)
-View(sleep)
-
-# MV detection (so: 24027605):
-is.na(sleep$Sleep)                       # vettore di booleani (la colonna 'sleep' del df 'sleep'), scomodo da leggere se grandi dimensioni;
-                                         # funzionamenmto vettoriale di R: 1 comando applicato a tutti gli elementi del vettore;
-                                         # --> True significa NA.
-
-sum(is.na(sleep$Sleep))                  # per singola colonna (ma sono tante!)
-sum(is.na(sleep))                        # in totale sull'intero dataframe (ma in quali righe?)
-apply(sleep,2,function(x) sum(is.na(x))) # sinossi utile (per colonna)
-apply(sleep,1,function(x) sum(is.na(x))) # sinossi utile (per riga)
-
-sapply(sleep, function(x) sum(is.na(x))) # sinossi utile (lo stesso, con la funzione sapply che restituisce un vettore)
-
-complete.cases(sleep)                     # un vettore di booleani che indicano, per ogni riga, se essa NON ha MV (cioè è completa)
-                                          # oppure no;
-                                          # come suggerisce il nome della funzione ('complete.cases'), TRUE qui significa assenza di NA
-sum(complete.cases(sleep))                # the number of rows that do NOT have ANY missing values (ie, complete): 42.
-                                          # cioè, per complemento a 62 (il numero totale di righe), ci sono 20 righe con MV.
-sum(!complete.cases(sleep))               # il complemento (l'operatore '!' inverte il booleano)
-
-# ricordandoci che un df può essere subsettato (per riga) anche con un vettore di booleani (ogni booleano dice ad R se "quella"
-# determinata riga dev'essere estratta oppure no.
-sleep[complete.cases(sleep),]             # la lista delle righe complete.
-sleep[complete.cases(sleep),][,c("NonD")] # subsetting a cascata: i valori della colonna 'NonD' nelle righe complete.
-sleep[c(3,4),]                            # due righe non complete: infatti hanno NA
-sleep[c(19,20,21),]                       # idem
-
-sum(!complete.cases(sleep))               # the number of rows that DO have missing values (at least 1): 20
-sleep[!complete.cases(sleep),]            # la lista delle righe non complete: ognuna ha almeno un NA
-
-library(mice)
-md.pattern(sleep,plot=TRUE) # molte combinazioni
-# prima colonna: numero righe con quel pattern; ultima colonna: numero variabili con MV (in quel pattern).
-# ogni riga rappresenta un possibile pattern di 'missingness': 0 significa MV per quella colonna, 1 significa non-MV.
-# La prima riga descrive il pattern "no MV" (tutti gli elementi sono 1).
-# La seconda riga descrive il pattern "no MV eccetto che per le colonne 'Dream' e 'NonD'.
-# La prima colonna indica il numero di righe in ogni pattern, l'ultima colonna indica il numero di variabili con MV.
-# Riga totale: numero di MV per ogni colonna.
-
-library(VIM)                 # VIM è un package per la gestione dei MV
-aggr(sleep,prop=F,numbers=T,bars=F,cex.axis=0.6) # grafico
-                                                 # il secondo plot è la versione grafica della funzione 'md.pattern'
-
-# molte funzioni R hanno l'argomento 'na.rm=T/F';
-# usiamo una colonna di 'sleep' che abbia MV, ad es. 'NonD':
-sum(sleep$NonD)            # --> la funzione 'sum' è NA (Not Applicable) perchè ci sono dei MV
-sum(sleep$NonD,na.rm=T)    # ok! (la somma sui 62-14 valori di 'NonD' presenti)
-
-# omit NAs sul dataset PIENO
-sleep = na.omit(sleep)
-View(sleep) # ??
-dim(sleep)
-
-# e nei nostri dataset?
-md.pattern(Credit,plot=FALSE)   # no MV
-md.pattern(Auto,plot=FALSE)     # no MV
-md.pattern(Carseats,plot=FALSE) # no MV
-md.pattern(Adv,plot=FALSE)      # no MV
-md.pattern(Boston,plot=FALSE)   # no MV
-
-# mappa visiva dei NA, ora:
-library(Amelia)
-data(sleep,package="VIM") # VIM è un package per la gestione dei MV
-dim(sleep)
-missmap(sleep)                  # dim(sleep) --> 62 x 10 --> 620 scalari (singole celle).
-                                # 38 MV in totale (da output di 'md.pattern') --> 6%
-missmap(Credit)
-
-# altro su MV/NA è nel corso R avanzato.
-
 # statistica descrittiva (analisi esplorativa dei dati) --------------------------------------------------
 
 # la parte del corso più importante: prima di PREVEDERE occorre CAPIRE i propri dati.
 # grande quantità di statistiche disponibili in R (base o contributed).
 
+library(ISLR)
 X <- Credit$Income   # variabile numerica continua (reale)
 
 # misure di CENTRATURA: mean, median
@@ -251,7 +172,7 @@ par(mfrow=c(1,1)) # restore del layout grafico UNICO
 # [more on outlier è nel corso R avanzato]
 
 # Income è gaussiana?
-shapiro.test(X)   # test di gaussianità --> no, X NON è gaussiana (perchè p.value < 0.5)
+shapiro.test(X)   # test di gaussianità --> no, X NON è gaussiana (perchè p.value < 0.05)
                   # 2.2 * 10^-16 = 0 del computer a doppia precisione
 
 par(mfrow=c(1,2))
@@ -650,6 +571,133 @@ system.time(colSums(Credit[,var.num]))       # funzionamento vettoriale
 system.time(apply(Credit[,var.num],2,sum))   # funzionamento non vettoriale (più lento)
 
 
+# studio sulla variabilità ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Installazione pacchetti (se non già presenti)
+install.packages("ISLR")
+
+library(ISLR)
+
+# Dataset disponibile direttamente
+data("Credit")
+str(Credit)
+
+# A. Calcolo della correlazione
+cor(Credit$Balance, Credit$Income)
+cor.test(Credit$Balance, Credit$Income, method = "pearson")
+
+library(ISLR)
+data("Credit")
+
+# Correlazione originale tra Balance e Income
+cor(Credit$Balance, Credit$Income)
+
+# 1) Raddoppio devstd di Income mantenendo la media (cor non cambia)
+mu <- mean(Credit$Income)
+sd <- sd(Credit$Income)
+Credit$Income2 <- mu + 2 * (Credit$Income - mu)
+cor(Credit$Balance, Credit$Income2)  # ≈ uguale alla precedente
+
+# 2) Aggiungo rumore forte a Income (cor diminuisce)
+set.seed(123)
+Credit$Income_noisy <- Credit$Income + rnorm(nrow(Credit), 0, 100)
+cor(Credit$Balance, Credit$Income_noisy)  # molto più bassa
+
+# Infatti, immagina di misurare reddito e saldo della carta:
+# - senza errori → c’è correlazione positiva (chi guadagna di più tende ad avere più debiti).
+# - se a ogni reddito aggiungo un errore enorme (es. ±100.000 € casuali), i valori diventano confusi:
+#   alcune persone con basso reddito sembreranno avere valori altissimi,
+#   altre con reddito alto sembreranno avere valori bassi.
+# Quindi, al grafico a dispersione, il pattern “lineare” quasi sparisce → la correlazione scende.
+
+# Conclusione:
+# - Media di income2quasi invariata.
+# - Deviazione standard molto più grande.
+# - Correlazione con Balance diminuisce, perché il rumore rende Income meno informativo.
+
+# B. Costruiamo e analizziamo un modelllo di regressione OLS multi-variata
+
+# 1. Modello di regressione: Balance ~ tutti i predittori
+fit <- lm(Balance ~ ., data = Credit)
+
+# 2. Sommario con coefficienti e p-value
+summary_fit <- summary(fit)
+print(summary_fit)
+
+# RSE = stima della dev std del termine d’errore, espresso nella scala della risposta
+
+# 3. Coefficienti con p-value
+coeff_table <- summary_fit$coefficients
+print(coeff_table)
+
+# 4. Intervalli di confidenza al 95%
+conf_intervals <- confint(fit, level = 0.95)
+print(conf_intervals)
+
+# 5. Analisi dei residui
+par(mfrow = c(2,2))   # layout 2x2
+plot(fit)
+
+# Interpretazione dei risultati (di chatGPT)
+# 📌 Risultati tipici della regressione
+# Il modello stima Balance (saldo residuo della carta di credito) in funzione di tutte le altre variabili socio-demografiche e finanziarie del dataset.
+# R²: di solito > 0.7 → il modello spiega bene la variabilità di Balance.
+# 🔑 Variabili più significative (p-value molto bassi)
+# Income → reddito: coefficiente positivo → all’aumentare del reddito cresce anche il saldo residuo della carta.
+# Limit → limite di credito: molto significativo e positivo → chi ha un limite più alto tende ad avere un saldo più alto.
+# Rating → punteggio di credito: anch’esso positivo → più alto il rating, maggiore il balance (collegato al fatto che rating e limite sono correlati).
+# Student (dummy: sì/no) → molto significativo: gli studenti tendono ad avere un balance diverso (spesso più alto).
+
+# Variabili meno significative:
+# - Age → spesso non significativo (p-value alto).
+# - Education → anche qui poco impatto diretto.
+# - Gender, Married, Ethnicity → in genere non risultano statisticamente significativi per spiegare il balance.
+
+# 📌 Analisi dei residui
+# Dai grafici diagnostici di plot(fit):
+# - Residuals vs Fitted → residui abbastanza sparsi, ma con un po’ di eteroschedasticità (varianza crescente).
+# - Normal Q-Q → residui vicini alla normale, ma con qualche deviazione agli estremi.
+# - Scale-Location → conferma un po’ di eteroschedasticità.
+# - Residuals vs Leverage → alcuni punti influenti (outlier) con alta leva, che andrebbero indagati.
+
+# 📌 Conclusione
+# - Il modello lineare spiega bene Balance, ma gran parte della forza predittiva è concentrata su poche variabili: Limit, Rating, Income, Student.
+# - Le altre variabili hanno scarso potere esplicativo.
+# - I residui mostrano che il modello è buono ma non perfetto (alcuni outlier e un po’ di eteroschedasticità).
+# 👉 In pratica: chi ha limiti di credito alti, redditi più elevati e/o è studente, tende ad avere i saldi più alti sulle carte.
+
+# modello senza i predittori non significativi
+
+# modifichiamo il dataset Credit
+# - la media di Balance resta uguale ma la devstd raddoppia
+# - tutte le altre colonne invariate
+
+# Controlliamo media e devstd attuali
+mean(Credit$Balance)
+sd(Credit$Balance)
+
+# Vogliamo stessa media, ma devstd raddoppiata
+mu <- mean(Credit$Balance)
+sigma <- sd(Credit$Balance)
+target_sigma <- 2 * sigma
+
+# Trasformazione lineare: (X - mu) * (target_sigma/sigma) + mu
+Credit$Balance <- (Credit$Balance - mu) * (target_sigma/sigma) + mu
+
+# Controllo nuova media e devstd
+mean(Credit$Balance)   # deve essere ~520
+sd(Credit$Balance)     # deve essere ~920
+
+# Rifare Regressione
+# Cosa succede (teoria + cosa vedrai sopra)
+# - Coefficienti (inclusa l’intercetta): si moltiplicano per k → qui, raddoppiano.
+# - Errori standard: si moltiplicano per k.
+# - t-stat e p-value: immutati (perché β e SE scalano entrambi di k).
+# - R² e F-stat: immutati.
+# - Residual standard error (sigma): si moltiplica per k.
+# - Residui: scalano di k.
+# - In breve: scalare solo la risposta cambia la scala di tutto (β, SE, residui), ma non l’evidenza statistica (t, p, R², F).
+
 # statistiche mancanti in R base ------------------------------------------
 
 # MODA (da Università La Sapienza):
@@ -689,4 +737,84 @@ mystats <- function(x,na.omit=FALSE) {
   kurt <- sum((x-m)^4/s^4)/n - 3
   return(c(n=n,mean=m,sd=s,skew=skew,kurtosis=kurt))
 }
+
+# Missing Values (MV) management --------------------------------------------------
+
+# --> in R chiamati NA (Not Available)
+
+data(sleep,package="VIM") # VIM è un package per la gestione dei MV
+data(package="VIM")       # la lista dei dataset SOLO del package indicato (VIM)
+# carica in memoria uno specifico dataset
+# <Promise object> ? (vedi pane Environment): click sopra.
+dim(sleep)
+View(sleep)
+
+# MV detection (so: 24027605):
+is.na(sleep$Sleep)                       # vettore di booleani (la colonna 'sleep' del df 'sleep'), scomodo da leggere se grandi dimensioni;
+# funzionamenmto vettoriale di R: 1 comando applicato a tutti gli elementi del vettore;
+# --> True significa NA.
+
+sum(is.na(sleep$Sleep))                  # per singola colonna (ma sono tante!)
+sum(is.na(sleep))                        # in totale sull'intero dataframe (ma in quali righe?)
+apply(sleep,2,function(x) sum(is.na(x))) # sinossi utile (per colonna)
+apply(sleep,1,function(x) sum(is.na(x))) # sinossi utile (per riga)
+
+sapply(sleep, function(x) sum(is.na(x))) # sinossi utile (lo stesso, con la funzione sapply che restituisce un vettore)
+
+complete.cases(sleep)                     # un vettore di booleani che indicano, per ogni riga, se essa NON ha MV (cioè è completa)
+# oppure no;
+# come suggerisce il nome della funzione ('complete.cases'), TRUE qui significa assenza di NA
+sum(complete.cases(sleep))                # the number of rows that do NOT have ANY missing values (ie, complete): 42.
+# cioè, per complemento a 62 (il numero totale di righe), ci sono 20 righe con MV.
+sum(!complete.cases(sleep))               # il complemento (l'operatore '!' inverte il booleano)
+
+# ricordandoci che un df può essere subsettato (per riga) anche con un vettore di booleani (ogni booleano dice ad R se "quella"
+# determinata riga dev'essere estratta oppure no.
+sleep[complete.cases(sleep),]             # la lista delle righe complete.
+sleep[complete.cases(sleep),][,c("NonD")] # subsetting a cascata: i valori della colonna 'NonD' nelle righe complete.
+sleep[c(3,4),]                            # due righe non complete: infatti hanno NA
+sleep[c(19,20,21),]                       # idem
+
+sum(!complete.cases(sleep))               # the number of rows that DO have missing values (at least 1): 20
+sleep[!complete.cases(sleep),]            # la lista delle righe non complete: ognuna ha almeno un NA
+
+library(mice)
+md.pattern(sleep,plot=TRUE) # molte combinazioni
+# prima colonna: numero righe con quel pattern; ultima colonna: numero variabili con MV (in quel pattern).
+# ogni riga rappresenta un possibile pattern di 'missingness': 0 significa MV per quella colonna, 1 significa non-MV.
+# La prima riga descrive il pattern "no MV" (tutti gli elementi sono 1).
+# La seconda riga descrive il pattern "no MV eccetto che per le colonne 'Dream' e 'NonD'.
+# La prima colonna indica il numero di righe in ogni pattern, l'ultima colonna indica il numero di variabili con MV.
+# Riga totale: numero di MV per ogni colonna.
+
+library(VIM)                 # VIM è un package per la gestione dei MV
+aggr(sleep,prop=F,numbers=T,bars=F,cex.axis=0.6) # grafico
+# il secondo plot è la versione grafica della funzione 'md.pattern'
+
+# molte funzioni R hanno l'argomento 'na.rm=T/F';
+# usiamo una colonna di 'sleep' che abbia MV, ad es. 'NonD':
+sum(sleep$NonD)            # --> la funzione 'sum' è NA (Not Applicable) perchè ci sono dei MV
+sum(sleep$NonD,na.rm=T)    # ok! (la somma sui 62-14 valori di 'NonD' presenti)
+
+# omit NAs sul dataset PIENO
+sleep = na.omit(sleep)
+View(sleep) # ??
+dim(sleep)
+
+# e nei nostri dataset?
+md.pattern(Credit,plot=FALSE)   # no MV
+md.pattern(Auto,plot=FALSE)     # no MV
+md.pattern(Carseats,plot=FALSE) # no MV
+md.pattern(Adv,plot=FALSE)      # no MV
+md.pattern(Boston,plot=FALSE)   # no MV
+
+# mappa visiva dei NA, ora:
+library(Amelia)
+data(sleep,package="VIM") # VIM è un package per la gestione dei MV
+dim(sleep)
+missmap(sleep)                  # dim(sleep) --> 62 x 10 --> 620 scalari (singole celle).
+# 38 MV in totale (da output di 'md.pattern') --> 6%
+missmap(Credit)
+
+# altro su MV/NA è nel corso R avanzato.
 
