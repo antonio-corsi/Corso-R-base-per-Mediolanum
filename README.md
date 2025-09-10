@@ -47,7 +47,6 @@ Note
 5. Script R "Corso R base - Abis) Altro su RStudio"
 - Sezione "Package" (in particolare .libPaths())
 
-
 Giornata 2 (5.9.2025) - lista degli argomenti trattati
 
 1.Recap
@@ -56,9 +55,10 @@ Giornata 2 (5.9.2025) - lista degli argomenti trattati
 - sezione "Dataset per partire"
 - sezione "Analisi Dati Esplorativa (EDA) - Aspetti principali" (sino alla fine, incluso esempio X11)
 
-Giornata 3 (10.9.2025) - lista degli da trattare 
-- esempio regressione balance su income, con nuovo dataset di 1000 clienti come i 400 di Credit, e con Income con stessa media e varianza 2/ volte maggiore
+Giornata 3 (10.9.2025) - lista degli argomenti trattati 
+1. Lo script R "Studio sulla variabilità (con effetti su correlazione e regressione)" 
 
+Giornata 4 (12.9.2025) - lista degli argomenti da trattare
 - sezione "Data type (formati colonne)"
 - sezione "I dataframe"
 - sezione "Cicli ed If"
