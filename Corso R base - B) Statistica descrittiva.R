@@ -617,8 +617,23 @@ cor(Credit$Balance, Credit$Income_noisy)  # molto più bassa
 
 # B. Costruiamo e analizziamo un modelllo di regressione OLS multi-variata
 
-# 1. Modello di regressione: Balance ~ tutti i predittori
-fit <- lm(Balance ~ ., data = Credit)
+# pacchetti
+library(ISLR)
+library(caret)   # per la divisione del dataset
+library(MASS)    # per lm se serve
+
+# carico dataset
+data(Credit)
+
+# 0. suddivisione tra training e test (70% training, 30% test)
+set.seed(123)  # per riproducibilità
+train_index <- createDataPartition(Credit$Balance, p = 0.7, list = FALSE)
+train_data <- Credit[train_index, ]
+test_data  <- Credit[-train_index, ]
+
+# 1. Modello di regressione: Balance ~ Income
+
+fit <- lm(Balance ~ ., data = train_data)
 
 # 2. Sommario con coefficienti e p-value
 summary_fit <- summary(fit)
@@ -634,9 +649,19 @@ print(coeff_table)
 conf_intervals <- confint(fit, level = 0.95)
 print(conf_intervals)
 
-# 5. Analisi dei residui
+# 5. Analisi dei residui (solo per regr. MV)
 par(mfrow = c(2,2))   # layout 2x2
 plot(fit)
+
+# Interpretazione
+# - Coefficienti (inclusa l’intercetta): si moltiplicano per k → qui, raddoppiano.
+# - Errori standard: si moltiplicano per k.
+# - t-stat e p-value: immutati (perché β e SE scalano entrambi di k).
+# - R² e F-stat: immutati.
+# - Residual standard error (sigma): si moltiplica per k.
+# - Residui: scalano di k.
+# - In breve: scalare solo la risposta cambia la scala di tutto (β, SE, residui), ma non l’evidenza statistica (t, p, R², F).
+
 
 # Interpretazione dei risultati (di chatGPT)
 # 📌 Risultati tipici della regressione
@@ -666,9 +691,20 @@ plot(fit)
 # - I residui mostrano che il modello è buono ma non perfetto (alcuni outlier e un po’ di eteroschedasticità).
 # 👉 In pratica: chi ha limiti di credito alti, redditi più elevati e/o è studente, tende ad avere i saldi più alti sulle carte.
 
-# modello senza i predittori non significativi
+# 6. predizioni sul test
+pred <- predict(fit, newdata = test_data)
 
-# modifichiamo il dataset Credit
+# 7. calcolo RMSE
+rmse <- sqrt(mean((test_data$Balance - pred)^2))
+rmse
+
+# 8. Modello di regressione: Balance ~ .
+
+# 9. rifare passi precedenti
+
+# 10.modello senza i predittori non significativi
+
+# 11. modifichiamo il dataset Credit
 # - la media di Balance resta uguale ma la devstd raddoppia
 # - tutte le altre colonne invariate
 
@@ -689,14 +725,15 @@ mean(Credit$Balance)   # deve essere ~520
 sd(Credit$Balance)     # deve essere ~920
 
 # Rifare Regressione
-# Cosa succede (teoria + cosa vedrai sopra)
-# - Coefficienti (inclusa l’intercetta): si moltiplicano per k → qui, raddoppiano.
-# - Errori standard: si moltiplicano per k.
-# - t-stat e p-value: immutati (perché β e SE scalano entrambi di k).
-# - R² e F-stat: immutati.
-# - Residual standard error (sigma): si moltiplica per k.
-# - Residui: scalano di k.
-# - In breve: scalare solo la risposta cambia la scala di tutto (β, SE, residui), ma non l’evidenza statistica (t, p, R², F).
+
+# standardizzazione
+
+# design matrix
+# - model.matrix(lm.fit)
+# - model.matrix(formula)
+# - aumento spread X-i con chatGPT B--> impatto
+
+# VIF(model)
 
 # statistiche mancanti in R base ------------------------------------------
 
