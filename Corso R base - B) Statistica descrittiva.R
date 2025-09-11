@@ -190,7 +190,14 @@ polygon(d,col="red",border="blue") # sovrascrive
 rug(X,col="brown")                 # sovrascrive
 par(mfrow=c(1,1))
 
-# Nota su standardizzazione:
+
+# nota su standardizzazione ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# molto usata nella Data Science con R
+data(Credit)
+X <- Credit$Income
+Y <- Credit$Age
+
 (X.std <- scale(X,center=T,scale=T))  # standardizazione, cioè: centratura e rescaling (ovvero diviso per la dev. std);
                                       # i due attributi riportati in coda sono media e varianza originali;
                                       # gli attributi sono anche visibili con 'attributes(object.name)'.

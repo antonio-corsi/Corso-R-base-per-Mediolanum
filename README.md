@@ -62,6 +62,7 @@ Giornata 4 (12.9.2025) - lista degli argomenti da trattare
 
 1. Dallo script R "Corso R base - B) Statistica descrittiva"
 - sezione "funzionamento vettoriale di R" (visto anche nella terza giornata)
+- sezione "nota sulla standardizzazione"
 - sezione "Missing Value Management"
 
 2. Dallo script R "Corso R base - Abis) Altro su RStudio" le seguenti sezioni:
