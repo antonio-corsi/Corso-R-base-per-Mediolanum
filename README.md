@@ -59,10 +59,16 @@ Giornata 3 (10.9.2025) - lista degli argomenti trattati
 1. Lo script R "Studio sulla variabilità (con effetti su correlazione e regressione)" 
 
 Giornata 4 (12.9.2025) - lista degli argomenti da trattare
+
+1. Dallo script R "Corso R base - B) Statistica descrittiva"
+- sezione "funzionamento vettoriale di R" (visto anche nella terza giornata)
+- sezione "Missing Value Management"
+
+2. Dallo script R "Corso R base - Abis) Altro su RStudio" le seguenti sezioni:
 - sezione "Data type (formati colonne)"
-- sezione "I dataframe"
 - sezione "Cicli ed If"
 - sezione "Funzioni custom"
+- sezione "I datadrame"??
 
 3. Dallo script R "Corso R base - D) Varie" le seguenti sezioni:
 - sezione "Debugging" sulla funzione vista prima - usare lo script ad hoc "funzione_debug"
