@@ -60,6 +60,8 @@ Giornata 3 (10.9.2025) - lista degli argomenti trattati
 
 Giornata 4 (12.9.2025) - lista degli argomenti da trattare
 
+0. Fine studio di variabilità con nota su regressione e classificazione (applicabilità generale)
+
 1. Dallo script R "Corso R base - B) Statistica descrittiva"
 - sezione "funzionamento vettoriale di R" (visto anche nella terza giornata)
 - sezione "nota sulla standardizzazione"
@@ -74,7 +76,10 @@ Giornata 4 (12.9.2025) - lista degli argomenti da trattare
 3. Dallo script R "Corso R base - D) Varie" le seguenti sezioni:
 - sezione "Debugging" sulla funzione vista prima - usare lo script ad hoc "funzione_debug"
 
-4. Dallo script "Corso R base - A) Introduzione ad R e Rstudio" le seguenti sezioni:
+4. Gli alberi di decisione 
+- script R "Decision Tree per Classificazione"
+
+5. Dallo script "Corso R base - A) Introduzione ad R e Rstudio" le seguenti sezioni:
 - Mini intro ad R (con qualche primo esempio al volo)
 - Download ed installazione (R ed RStudio) 
 - Mini intro ad RStudio (recap e sottosezione sul tab "Environment")
