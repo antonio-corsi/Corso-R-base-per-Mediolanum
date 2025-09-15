@@ -9,6 +9,7 @@ library(ISLR)
 
 # il dataset utlizzato
 data("Credit")   # carica il dataset in memoria
+
 str(Credit)
 
 
@@ -77,11 +78,13 @@ corrplot(cor(Credit[var.num]),type="upper",method="ellipse")
 # B. Impatto sulla regressione ------------------------------------------------------------------------------------------------------------------------------------------------
 # Impatto della variabilità su un modelllo di regressione OLS (univariato e multi-variato)
 
-# pacchetti
+# La regressione è un fondamentale ed usatissimo metodo di previsione di variabili numeriche (come è Balance)
 
+# pulizia dell'ambiente
 ls()             # tutti gli oggetti del global environment
 rm(list = ls())  # per sicurezza cancelliamo tutti gli oggetti del global environment
 
+# pacchetti
 library(caret)   # per la divisione del dataset
 library(MASS)    # per lm se serve
 library(car)     # per il VIF
@@ -170,6 +173,10 @@ rmse
 # Ripetiamo tutti i passi precedenti, ma con una nuova formula di fit
 
 fit.MV <- lm(Balance ~ ., data = train_data)   # fit.MV: nome del nuovo modello di regressione
+
+vif(fit.MV)                                    # VIF di Limit e Rating > 100 --> Limit e Rating sonoi correlati 
+                                               # bisogna togliere uno dei due dal modello.
+
 summary.fit.MV <- summary(fit.MV)
 summary.fit.MV                                 # R2 aggiustato è salito al 94%!!
 
@@ -202,6 +209,8 @@ summary(fit.MV.red7)
 # I restanti 4 predittori (più l'intercetta) hanno tutti p.value < 0.05, cioè spiegano la risposta Balance
 # R2 è rimasto invariato!
 
+# in generale, non vogliamo costruire modelli inutilmnete complessi, se possiamo eliminare predittori inutili ben venga
+
 # i predittori rimasti nel modello (senza l'intercetta):
 names(coef(fit.MV.red7))[-1]
 
@@ -211,16 +220,14 @@ fit.final <- lm(Balance ~ Income + Limit + Cards + Student, data = train_data)
 summary(fit.final)
 
 
-2# le previsioni sui dati di test con l'ultimo modello
+# le previsioni sui dati di test con l'ultimo modello
 pred <- predict(fit.final, newdata = test_data)
 
 # calcolo RMSE (Rooted Mean Square Error --> vedi formula sulla voce Wikipedia EN "RMSD"): 
 rmse <- sqrt(mean((test_data$Balance - pred)^2))
-rmse # l'errore di previsione medio (sceso molto)
+rmse # l'errore di previsione medio (sceso molto rispetto alla regressione univariata)
 
-# NON confondere con R2 e pvalue (vedi il summary del modello), calcolati sul training set con RMSE, calcolato sul test set
-
-# ARRIVATI SIN QUI il 10.9.25
+# NON confondere R2 e pvalue (vedi il summary del modello), calcolati sul training set, con RMSE, calcolato sul test set
 
 # previsioni su NUOVI dati
 # creiamo un dataframe con 3 nuovi clienti, quindi stessa lunghezza per tutte le colonne
@@ -234,14 +241,28 @@ new_clients <- data.frame(
   Student = factor(c("Yes", "No", "No"), levels = lv)
 )
 
-pred <- predict(fit_final, newdata = new_clients)
+new_clients
+
+pred <- predict(fit.final, newdata = new_clients)  # la novità di questa istruzione è 'new_data' su new_clients
+                                                   # e non 'test_data' (come fatto prima)
 pred
 
 
+# predittori correlati con la risposta: bene! (spiegano la risposta)
+# predittori correlati tra loro: male! (il modello non è stabile)
 
-# VIF
-car::vif(fit.MV.red7)
-car::vif(fit.MV)
+# la correlazione a coppie si calcola con la matrice di correlazione, come visto prima.
+# ma i predittori possono essere multi-correlati; ad esempio le vendite totali = somma delle vendite mensili
+
+# la multi-correlazione dei predittori tra loro si calcola con il VIF (dopo il fit del modello) 
+# VIF (Variance Inflation Factor)
+vif(fit.final)
+
+# oppure in modo equivalente (se ci fossero funzioni con lo stesso nome appartenenti a package differenti)
+car::vif(fit.final)   # cioè premettendo al nome della funzione il package a cui essa appartiene
+
+# linea-guida
+# ognuno dei VIF forniti (uno per predittore) devono essere < 10 (meglio) ma assolutamente < 100.
 
 # model.matrix
 model.matrix(fit.MV.red7)
@@ -267,9 +288,8 @@ Credit$Balance <- (Credit$Balance - mu) * (target_sigma/sigma) + mu
 mean(Credit$Balance)   # deve essere ~520
 sd(Credit$Balance)     # deve essere ~920
 
-# rifare regressione
 
-# previsioni nuove
+# rifare regressione --> risultati differenti da prima
 
-# standardizzazione
+
 

@@ -924,38 +924,59 @@ class(frode) # non più una stringa, ora sono applicabili gli operatori booleani
 
 # Cicli ed If -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# discretizzazione di 'Balance' (0,1,2): esempio di 'for' esterna con dentro due 'if-then-else' annidate.
+# esempio che contiene sia for (ciclo) che if annidate (una esterna ed una interna).
+# discretizzazione di 'Balance' (0,1,2): cioè suddivisione in 3 fasce di reddito (basso, medio, alto)
+
+# la sintassi:
+# - sia la for che la if hanno una condizione da verificare: la for min e max variabile di controllo, 
+#   la if quale ramo eseguire
+# - la condizione deve stare in parentesi tonde
+# - il blocco di codice da eseguire (sia per la for che per la if) sta dentro le parentesi graffe
+# - tutto il codice deve essere indentato in modo corretto
+
 # Attenzione alle parentesi (graffe) aperte e chiuse.
 
 data(Credit)
-for (i in 1:nrow(Credit)) {
+for (i in 1:nrow(Credit)) {                                 # 'i' è la variabile di controllo
+                                                            # 'i' varia da 1 a 400 (numero righe di Credit)
+                                                            # '1:K' è un range (qui K = nrow(Credit))
+                                                            # la parentesi graffa aperta inizia il blocco di codice
+                                                            # la then è la parentesi graffa aperta
   
-  if (Credit$Balance[i]>500) {  # if-then-else esterna
+  if (Credit$Balance[i]>500) {     # if-then-else esterna
     
     if (Credit$Balance[i]<1000) {  # if-then-else interna
-      Credit$Balance[i] <- 1
+      Credit$Balance[i] <- 1       # 1 significa 'Balance' tra 500 e 1000
       
-    } else { # else della if-then-else interna
-      Credit$Balance[i] <- 2
+    } else {                       # else della if-then-else interna
+      Credit$Balance[i] <- 2       # 2 significa che 'Balance' > 1000 
       
     } # fine if-then-else interna
     
-  } else {  # else della if-then-else esterna
-    Credit$Balance[i] <- 0
+  } else {                         # else della if-then-else esterna
+    Credit$Balance[i] <- 0         # 0 significa 'Balance' < 500
   } # fine if-then-else esterna
   
 } # fine for
 
-View(Credit$Balance)
-table(Credit$Balance)
+# il risultato della for/if:
+Credit$Balance
+# le frequenze
+table(Credit$Balance)    # --> molti balance bassi, pochi alti  
 
+# conferma dai dati ORIGINALI:
+data(Credit)
+hist(Credit$Balance)   
+
+# secondo esempio banale di ciclo for
+# calcolo della somma dei tre numeri 3,2,19
 # ciclo 'for' di confronto con il ciclo della introduzione a python di ISLR
 total = 0
 
 for (i in c(3,2,19))
-{
-  total = total + i
-}
+  {
+    total = total + i
+  }
 total
 
 
@@ -964,17 +985,21 @@ total
 # sintassi: 'nome.funzione(lista argomenti)'
 # oppure:   ''nome.funzione()' per funzioni che possono non avere argomenti (ad es. 'dir()' oppure 'ls()').
 # nome.funzione (senza parentesi) --> il codice interno della funzione (a volte utile da esaminare)
-ls
+
+# vediamolo sulle funzioni base (non custom)
+ls()
 
 args(nome.funzione) # Displays the argument names and corresponding default values of a function or primitive
-args(mean)     # per le funzioni
-formals(ls)    # per le primitive (funzioni scrite in C come: ls, length, ecc)
+args(mean)          # per le funzioni
+formals(ls)         # per le primitive (funzioni scrite in C come: ls, length, ecc)
 
 # quasi tutto in R è una funzione
 "+"(2,2) # persino gli operatori aritmetici
 
-# definizione della funzione
-f <- function (x,y,z=1){
+# definizione della funzione CUSTOM (utente) secondo la solita sintassi:
+# - tra parentesi tonde gli argomenti FORMALI della funzione
+# - tra parentesi quadre il corpo della funzione
+f <- function (x,y,z=1) {      # z=1 di default se non attualizzato alla chiamata della funzione
   result <- x + (2*y) + (3*z)
   return(result)               # il valore della funzione.
   # se 'return' non è presente, il valore della funzione è quello assegnato nell'ultimo statement.
@@ -986,16 +1011,17 @@ formals(f)    #   "      "       "            "         "     (funzione programm
 
 x             # non riconosciuto, è locale ad f.
 
-# argomenti passati per posizione (in ordine):
+# le CHIAMATE alla funzione con gli argomenti ATTUALI
+
 f(2,3)        #     "        "     "      "          (e default per z)
 f(x=2,y=3)    #     "        "     "  nome-argomento (e default per z)
 f(x=2,y=3,z=3)#     "        "     "  nome-argomento (z valorizato)
-f(z=3,y=3,2)  # gli argomenti z ed y passati per nome, e R assume che il primo argomento non specificato (3) sia x.
-# gli argomenti passati per nome possono essere in qualsiasi ordine.
-# ciò vale per TUTTE le funzioni R, anche quelle standard (non generate dall'utente).
-mean(na.rm="True",x=sleep$NonD)  # 8.67 come sopra
+f(z=3,y=3,2)  # gli argomenti z ed y passati per nome, e R assume che il primo argomento non specificato (2) sia x.
 
-f(3,3,2)      # 15 non 17!
+# gli argomenti passati per nome possono essere in qualsiasi ordine.
+# ciò vale per TUTTE le funzioni R, anche quelle standard (non solo quelle generate dall'utente).
+mean(sleep$NonD,,T)  # 8.67 come sopra
+mean(na.rm=T,x=sleep$NonD)  # 8.67 come sopra
 
 # attenzione: gli argomenti sono sempre passati per valore, non per referenza (puntatore). dunque R ne crea una copia (problema con big data).
 

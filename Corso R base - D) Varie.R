@@ -532,12 +532,10 @@ browseURL(url, browser = getOption("browser"))
 # debugging ---------------------------------------------------------------
 # (anche da ch. 9 in Hadley Wickham)
 
-# si voglia fare il debug della seguente funzione:
-# Vogliamo debuggare la semplice funzione f prima definita e qui sotto nuovamente:
+# si voglia fare il debug della seguente funzione f prima definita e qui sotto nuovamente:
 
 f <- function (x,y,z=1){
   result <- x + (2*y) + (3*z)
-  browser()
   return(result)               # il valore della funzione.
   # se 'return' non è presente, il valore della funzione è quello assegnato nell'ultimo statement.
 }

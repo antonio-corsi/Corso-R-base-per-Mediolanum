@@ -572,11 +572,26 @@ sd(Credit$Income[1:2])   # --> ok
 # funzionamento vettoriale di R -------------------------------------------
 # ["Advanced R" di Hadley Wickham - p. 359 e pp. 366+]
 # Esempio:
+# - si voglia calcolare la somma di tutte le colonne numeriche di Credit;
+# - si deve fare un ciclo for oppure un elenco di 'sum(colonna)'
+sum(Credit$Limit)
+sum(Credit$Rating)
+
+# R e Python lavorano in modo vettoriale, cioè parallelizzando le operazioni sui vettori colona o riga
 var.num <- c("Income","Limit","Rating","Cards","Age","Education","Balance")
+
+colSums(Credit[,var.num])                    # l'operazione di somma colonna in modo vettoriale
+
+# due vantaggi:
+# - si scrive meno codice
+# - èpiù veloce
 
 system.time(colSums(Credit[,var.num]))       # funzionamento vettoriale
 system.time(apply(Credit[,var.num],2,sum))   # funzionamento non vettoriale (più lento)
 
+# bottom-line
+# - se potete scrivere una istruzione R vettoriale anzichè un ciclo for od un elenco di istruzioni è meglio
+# - alcune funzioni di base fornite da R funzionano in modo vettoriale, altre no. E' bene sapere quali (help, chatGPT)
 
 # statistiche mancanti in R base ------------------------------------------
 
@@ -620,20 +635,33 @@ mystats <- function(x,na.omit=FALSE) {
 
 # Missing Values (MV) management --------------------------------------------------
 
+# MV è una cella (all'incrocio riga X con colonna Y) mancante (non valorizzata)
 # --> in R chiamati NA (Not Available)
 
-data(sleep,package="VIM") # VIM è un package per la gestione dei MV
+# il dataset Credit è stato realizzato ad hoc (non è reale) --> non ha MV/NA
+# per imparare a gestire i MV usiamo qui un altron dataset (che ha MV)
+
+# VIM è un package per la gestione dei MV
 data(package="VIM")       # la lista dei dataset SOLO del package indicato (VIM)
+data(sleep,package="VIM") # il caricamento in memoria del dataset 'sleep'
+
 # carica in memoria uno specifico dataset
 # <Promise object> ? (vedi pane Environment): click sopra.
-dim(sleep)
+dim(sleep)                # 'sleep' ha 62 righe e 10 colonne
 View(sleep)
 
-# MV detection (so: 24027605):
-is.na(sleep$Sleep)                       # vettore di booleani (la colonna 'sleep' del df 'sleep'), scomodo da leggere se grandi dimensioni;
+# è molto scomodo o persino impossibile rilevare i MV con View su grandi dataset
+
+# serve un rilevamento MV automatico - in gergo si chiama MV detection (so: 24027605):
+# si vogliano individuare i MV della colonna Sleep del dataset sleep
+# facciamo allora un check booleano sulla colonna con la funzione 'is.na
+
+is.na(sleep$Sleep)                # -->  vettore di booleani 
+
 # funzionamenmto vettoriale di R: 1 comando applicato a tutti gli elementi del vettore;
 # --> True significa NA.
 
+# poichè nei linguaggi di programmazione TRUE è memorizzato in memoria come 1 (e FALSE come 0)
 sum(is.na(sleep$Sleep))                  # per singola colonna (ma sono tante!)
 sum(is.na(sleep))                        # in totale sull'intero dataframe (ma in quali righe?)
 apply(sleep,2,function(x) sum(is.na(x))) # sinossi utile (per colonna)
@@ -641,9 +669,13 @@ apply(sleep,1,function(x) sum(is.na(x))) # sinossi utile (per riga)
 
 sapply(sleep, function(x) sum(is.na(x))) # sinossi utile (lo stesso, con la funzione sapply che restituisce un vettore)
 
-complete.cases(sleep)                     # un vettore di booleani che indicano, per ogni riga, se essa NON ha MV (cioè è completa)
-# oppure no;
-# come suggerisce il nome della funzione ('complete.cases'), TRUE qui significa assenza di NA
+# sinora abbiamo contato i MV (per colonna, per riga o in totale)
+
+# la seguente funzione individua le righe (cases) complete (senza MV in nessuna colonna)
+complete.cases(sleep)                     # un vettore di booleani che indicano, per ogni riga, 
+                                          # se essa NON ha MV (cioè è completa) oppure no;
+
+# come suggerisce il nome della funzione ('complete.cases'), TRUE qui significa assenza di MV
 sum(complete.cases(sleep))                # the number of rows that do NOT have ANY missing values (ie, complete): 42.
 # cioè, per complemento a 62 (il numero totale di righe), ci sono 20 righe con MV.
 sum(!complete.cases(sleep))               # il complemento (l'operatore '!' inverte il booleano)
@@ -668,6 +700,7 @@ md.pattern(sleep,plot=TRUE) # molte combinazioni
 # Riga totale: numero di MV per ogni colonna.
 
 library(VIM)                 # VIM è un package per la gestione dei MV
+
 aggr(sleep,prop=F,numbers=T,bars=F,cex.axis=0.6) # grafico
 # il secondo plot è la versione grafica della funzione 'md.pattern'
 
@@ -677,9 +710,9 @@ sum(sleep$NonD)            # --> la funzione 'sum' è NA (Not Applicable) perch�
 sum(sleep$NonD,na.rm=T)    # ok! (la somma sui 62-14 valori di 'NonD' presenti)
 
 # omit NAs sul dataset PIENO
-sleep = na.omit(sleep)
-View(sleep) # ??
-dim(sleep)
+sleep_red = na.omit(sleep)  # toglie le righe con MV
+View(sleep_red) # ??
+dim(sleep_red)
 
 # e nei nostri dataset?
 md.pattern(Credit,plot=FALSE)   # no MV
@@ -696,5 +729,46 @@ missmap(sleep)                  # dim(sleep) --> 62 x 10 --> 620 scalari (singol
 # 38 MV in totale (da output di 'md.pattern') --> 6%
 missmap(Credit)
 
-# altro su MV/NA è nel corso R avanzato.
+# sino a qui abbiamo INDIVIDUATO (RILEVATO) i MV: quanti? dove?
+# ora dobbiamo GESTIRLI: ci sono 3+1 strategie di gestione dei MV
+# - cercare di recuperare da altre fonti i valori mancanti
+# - togliere dal dataset tutte le righe che hanno almeno 1 MV: approccio pulito ma drastico, posso perdere molte righe
+# - imputare i MV con la mediana di colonna
+# - la strategia migliore: fittiamo un modello di regressione con risposta la colonna con MV e predittori le altre colonne
 
+# vediamo la TERZA strategia sul dataset sleep
+train.sleep = sleep[complete.cases(sleep),]        # un subset BOOLEANO di riga (tutte le colonne)
+                                                   # le sole righe complete, senza MV (42)
+head(train.sleep)
+dim(train.sleep)
+
+# su questo dataset facciamo il fit di un modello di regressione (per la colonna 'NonD')
+mod.MV = lm(NonD ~ ., data=train.sleep)
+summary(mod.MV)   # --> dà errore! (R2 aggiustato = 1)
+
+# l'errore è spiegato da chatGPT 5 a questa url: probabili multi-collinearità tra i predittori
+url <- "https://chatgpt.com/share/68c3e244-94f4-8012-a249-416ec196042c"
+browseURL(url, browser = getOption("browser"))
+
+# 2 modi, tra i molti, per verificare la (multi)collinearità tra i predittori
+round(cor(train.sleep),2)   # --> correlazioni elevate (vicine a 1)
+library(car)
+vif(mod.MV)                 # --> VIF elevati (>>10)
+
+# conclusione: effettivamente alcuni predittori sono molto correlati
+# quali togliere? è una scelta di business --> scegliamo BodyWgt
+
+mod.MV = lm(NonD ~ .-BodyWgt, data=train.sleep)
+summary(mod.MV)             # come prima
+
+vif(mod.MV)                 # VIF di danger molto alto
+
+mod.MV = lm(NonD ~ .-BodyWgt-Danger, data=train.sleep)
+summary(mod.MV)             # come prima
+
+vif(mod.MV)                 # VIF di danger molto alto
+
+
+# bottom-line
+# - troviamo il modello affidabile (non con R2 aggiustato=1)
+# - facciamo la predict di NonD con il modello fittato applicato alle righe di sleep nelle quali NonD è MV
